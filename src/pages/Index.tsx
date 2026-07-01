@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { authors } from "@/data/blogPosts";
 import heroBg from "@/assets/hero-bg.jpg";
 import { TrendingUp } from "lucide-react";
+import { getSiteSettings, SiteSettings, DEFAULT_SETTINGS } from "@/utils/settings";
 
 interface BlogPost {
   id: string;
@@ -45,9 +46,20 @@ const Index = () => {
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [authors, setAuthors] = useState<Author[]>([]);
   const [loading, setLoading] = useState(true);
+  const [settings, setSettings] = useState<SiteSettings>(DEFAULT_SETTINGS);
 
   useEffect(() => {
     fetchPostsAndAuthors();
+    setSettings(getSiteSettings());
+
+    const handleSettingsUpdate = () => {
+      setSettings(getSiteSettings());
+    };
+
+    window.addEventListener("site-settings-updated", handleSettingsUpdate);
+    return () => {
+      window.removeEventListener("site-settings-updated", handleSettingsUpdate);
+    };
   }, []);
 
   const fetchPostsAndAuthors = async () => {
@@ -174,7 +186,7 @@ const Index = () => {
             <div className="text-center text-primary-foreground space-y-6 sm:space-y-8 animate-fade-in">
               <div className="inline-flex items-center px-3 py-1 sm:px-4 sm:py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 mb-4 animate-bounce-in">
                 <span className="mr-2">✨</span>
-                <span className="text-xs sm:text-sm font-medium">Welcome to Lydia's Diaries</span>
+                <span className="text-xs sm:text-sm font-medium">Welcome to {settings.siteTitle}</span>
               </div>
 
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight animate-slide-in-up">
@@ -182,7 +194,7 @@ const Index = () => {
               </h1>
 
               <p className="text-base sm:text-lg md:text-xl lg:text-2xl opacity-90 max-w-2xl mx-auto leading-relaxed animate-slide-in-up delay-150">
-                Discover insights on science, research, and technology from creators around the world
+                {settings.siteDescription}
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center pt-8 animate-slide-in-up delay-300">

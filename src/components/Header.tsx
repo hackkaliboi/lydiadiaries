@@ -8,12 +8,28 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAdmin } from "@/hooks/useAdmin";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
+import { getSiteSettings } from "@/utils/settings";
+
 const Header = () => {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const { isAdmin } = useAdmin();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [siteTitle, setSiteTitle] = useState("Lydia's Diaries");
+
+  useEffect(() => {
+    setSiteTitle(getSiteSettings().siteTitle);
+
+    const handleSettingsUpdate = () => {
+      setSiteTitle(getSiteSettings().siteTitle);
+    };
+
+    window.addEventListener("site-settings-updated", handleSettingsUpdate);
+    return () => {
+      window.removeEventListener("site-settings-updated", handleSettingsUpdate);
+    };
+  }, []);
 
   useEffect(() => {
     // Get initial session
@@ -57,7 +73,7 @@ const Header = () => {
       <div className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center space-x-2">
           <span className="text-2xl font-bold bg-gradient-hero bg-clip-text text-transparent">
-            Lydia's Diaries
+            {siteTitle}
           </span>
         </Link>
 

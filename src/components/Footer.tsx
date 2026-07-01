@@ -1,5 +1,7 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Mail, Twitter, Instagram } from "lucide-react";
+import { getSiteSettings, SiteSettings, DEFAULT_SETTINGS } from "@/utils/settings";
 
 // TikTok icon as a custom SVG since it's not available in lucide-react
 const TikTok = () => (
@@ -9,16 +11,31 @@ const TikTok = () => (
 );
 
 const Footer = () => {
+  const [settings, setSettings] = useState<SiteSettings>(DEFAULT_SETTINGS);
+
+  useEffect(() => {
+    setSettings(getSiteSettings());
+
+    const handleSettingsUpdate = () => {
+      setSettings(getSiteSettings());
+    };
+
+    window.addEventListener("site-settings-updated", handleSettingsUpdate);
+    return () => {
+      window.removeEventListener("site-settings-updated", handleSettingsUpdate);
+    };
+  }, []);
+
   return (
     <footer className="border-t border-border bg-background mt-24">
       <div className="container py-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
           <div className="space-y-4">
             <h3 className="text-xl font-bold bg-gradient-hero bg-clip-text text-transparent">
-              Lydia's Diaries
+              {settings.siteTitle}
             </h3>
             <p className="text-sm text-muted-foreground">
-              A modern platform for sharing scientific insights and discoveries. Explore the latest research in physics, astronomy, and medical science.
+              {settings.siteDescription}
             </p>
           </div>
 
@@ -67,21 +84,27 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold mb-4">Connect</h4>
             <div className="flex gap-4">
-              <a href="https://x.com/nnennalydia?s=11&t=rQjxzJkTWMA51t1No54hrg" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
-                <Twitter className="h-5 w-5" />
-              </a>
-              <a href="https://www.tiktok.com/@nnennalydia?_t=ZM-90tiAa1A3gJ&_r=1" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
-                <TikTok />
-              </a>
-              <a href="https://www.instagram.com/nnennaitodo?igsh=NmozcmhhMDhoY2J6&utm_source=qr" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
-                <Instagram className="h-5 w-5" />
-              </a>
+              {settings.twitter && (
+                <a href={settings.twitter} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                  <Twitter className="h-5 w-5" />
+                </a>
+              )}
+              {settings.tiktok && (
+                <a href={settings.tiktok} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                  <TikTok />
+                </a>
+              )}
+              {settings.instagram && (
+                <a href={settings.instagram} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                  <Instagram className="h-5 w-5" />
+                </a>
+              )}
             </div>
           </div>
         </div>
 
         <div className="mt-12 pt-8 border-t border-border text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} Lydia's Diaries. All rights reserved.</p>
+          <p>{settings.copyright}</p>
         </div>
       </div>
     </footer>

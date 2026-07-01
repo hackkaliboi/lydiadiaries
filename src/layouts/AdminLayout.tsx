@@ -1,4 +1,4 @@
-import { useState, ReactNode } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +15,7 @@ import {
 import { useAdmin } from "@/hooks/useAdmin";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { getSiteSettings } from "@/utils/settings";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -25,6 +26,20 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [siteTitle, setSiteTitle] = useState("Lydia's Diaries");
+
+  useEffect(() => {
+    setSiteTitle(getSiteSettings().siteTitle);
+
+    const handleSettingsUpdate = () => {
+      setSiteTitle(getSiteSettings().siteTitle);
+    };
+
+    window.addEventListener("site-settings-updated", handleSettingsUpdate);
+    return () => {
+      window.removeEventListener("site-settings-updated", handleSettingsUpdate);
+    };
+  }, []);
 
   const handleSignOut = async () => {
     try {
@@ -75,7 +90,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         <div className="flex items-center justify-between h-16 px-4 border-b border-border">
           <Link to="/admin" className="flex items-center space-x-2">
             <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              Lydia's Diaries Admin
+              {siteTitle} Admin
             </span>
           </Link>
           <Button
@@ -135,7 +150,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
             <Menu className="h-6 w-6" />
           </Button>
           <Link to="/admin" className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            Lydia's Diaries
+            {siteTitle}
           </Link>
           <div className="w-10" /> {/* Spacer for alignment */}
         </header>
