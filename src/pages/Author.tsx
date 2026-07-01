@@ -62,7 +62,7 @@ const Author = () => {
 
         // Update SEO
         updatePageSEO({
-          title: `${authorData.full_name || "Unknown Author"} - Author | DXN`,
+          title: `${authorData.full_name || "Unknown Author"} - Author | Lydia's Diaries`,
           description: authorData.bio || "",
           canonical: `${window.location.origin}/author/${authorData.id}`,
         });

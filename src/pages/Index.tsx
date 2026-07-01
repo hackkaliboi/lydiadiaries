@@ -174,7 +174,7 @@ const Index = () => {
             <div className="text-center text-primary-foreground space-y-6 sm:space-y-8 animate-fade-in">
               <div className="inline-flex items-center px-3 py-1 sm:px-4 sm:py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 mb-4 animate-bounce-in">
                 <span className="mr-2">✨</span>
-                <span className="text-xs sm:text-sm font-medium">Welcome to DXN</span>
+                <span className="text-xs sm:text-sm font-medium">Welcome to Lydia's Diaries</span>
               </div>
 
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight animate-slide-in-up">

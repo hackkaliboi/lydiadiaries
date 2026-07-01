@@ -14,7 +14,7 @@ const About = () => {
               <span className="text-sm font-medium text-primary">Our Story</span>
             </div>
             <h1 className="text-5xl md:text-6xl font-bold bg-gradient-hero bg-clip-text text-transparent">
-              About DXN
+              About Lydia's Diaries
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               A modern platform for sharing ideas and stories that matter
@@ -24,7 +24,7 @@ const About = () => {
           <Card className="p-8 md:p-12 bg-gradient-card border-primary/10 hover-scale transition-all duration-300">
             <div className="space-y-6">
               <p className="text-lg leading-relaxed">
-                Welcome to DXN, where creativity meets technology. We're passionate about 
+                Welcome to Lydia's Diaries, where creativity meets technology. We're passionate about 
                 providing a platform for writers, designers, and thinkers to share their insights 
                 with the world.
               </p>

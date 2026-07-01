@@ -74,7 +74,7 @@ export const generateStructuredData = (type: "website" | "article" | "person", d
 
   if (type === "website") {
     structuredData["@type"] = "WebSite";
-    structuredData.name = data.name || "DXN";
+    structuredData.name = data.name || "Lydia's Diaries";
     structuredData.description = data.description;
     structuredData.url = baseUrl;
   } else if (type === "article") {

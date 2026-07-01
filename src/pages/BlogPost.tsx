@@ -115,7 +115,7 @@ const BlogPost = () => {
         setPost(formattedPost);
 
         updatePageSEO({
-          title: `${formattedPost.title} | DXN`,
+          title: `${formattedPost.title} | Lydia's Diaries`,
           description: formattedPost.excerpt,
           type: "article",
           author: formattedPost.author,

@@ -15,7 +15,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
           <div className="space-y-4">
             <h3 className="text-xl font-bold bg-gradient-hero bg-clip-text text-transparent">
-              DXN
+              Lydia's Diaries
             </h3>
             <p className="text-sm text-muted-foreground">
               A modern platform for sharing scientific insights and discoveries. Explore the latest research in physics, astronomy, and medical science.
@@ -81,7 +81,7 @@ const Footer = () => {
         </div>
 
         <div className="mt-12 pt-8 border-t border-border text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} DXN. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Lydia's Diaries. All rights reserved.</p>
         </div>
       </div>
     </footer>

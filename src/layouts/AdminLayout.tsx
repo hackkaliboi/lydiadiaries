@@ -75,7 +75,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         <div className="flex items-center justify-between h-16 px-4 border-b border-border">
           <Link to="/admin" className="flex items-center space-x-2">
             <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              DXN Admin
+              Lydia's Diaries Admin
             </span>
           </Link>
           <Button
@@ -135,7 +135,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
             <Menu className="h-6 w-6" />
           </Button>
           <Link to="/admin" className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            DXN
+            Lydia's Diaries
           </Link>
           <div className="w-10" /> {/* Spacer for alignment */}
         </header>

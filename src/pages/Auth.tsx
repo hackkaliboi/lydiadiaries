@@ -171,7 +171,7 @@ const Auth = () => {
         <div className="text-center mb-8 animate-fade-in">
           <Link to="/" className="inline-block mb-6">
             <span className="text-3xl font-bold bg-gradient-to-r from-accent to-white bg-clip-text text-transparent">
-              DXN
+              Lydia's Diaries
             </span>
           </Link>
           <h1 className="text-4xl font-bold text-white mb-2">

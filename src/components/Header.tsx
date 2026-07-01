@@ -57,7 +57,7 @@ const Header = () => {
       <div className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center space-x-2">
           <span className="text-2xl font-bold bg-gradient-hero bg-clip-text text-transparent">
-            DXN
+            Lydia's Diaries
           </span>
         </Link>
 
