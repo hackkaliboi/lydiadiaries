@@ -68,55 +68,57 @@ const BlogCard = ({ id, title, excerpt, category, date, readTime, image }: BlogC
   };
 
   return (
-    <Link to={`/post/${id}`}>
-      <Card className="overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-gradient-card h-full flex flex-col">
-        <div className="aspect-[16/9] overflow-hidden">
+    <Link to={`/post/${id}`} className="group h-full block">
+      <Card className="overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-1.5 bg-gradient-card border border-primary/5 hover:border-primary/15 h-full flex flex-col">
+        <div className="aspect-[16/9] overflow-hidden bg-muted relative">
           <img
             src={image}
             alt={title}
-            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               target.style.display = 'none';
               target.parentElement!.innerHTML = `
                 <div class="w-full h-full bg-muted flex items-center justify-center">
-                  <span class="text-muted-foreground">Image not available</span>
+                  <span class="text-muted-foreground text-xs font-semibold">Image not available</span>
                 </div>
               `;
             }}
           />
         </div>
-        <div className="p-6 space-y-3 flex-1 flex flex-col">
+        <div className="p-6 space-y-4 flex-1 flex flex-col">
           <div className="flex items-center gap-2">
-            <Badge variant="secondary">{category}</Badge>
+            <Badge variant="secondary" className="px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase bg-primary/5 text-primary border border-primary/10">
+              {category}
+            </Badge>
           </div>
-          <h3 className="text-xl sm:text-2xl font-bold line-clamp-2 hover:text-primary transition-colors">
+          <h3 className="text-xl font-serif font-bold line-clamp-2 group-hover:text-primary transition-colors duration-300 leading-snug">
             {title}
           </h3>
-          <p className="text-muted-foreground line-clamp-3 flex-1">
+          <p className="text-sm text-muted-foreground line-clamp-3 flex-1 leading-relaxed">
             {excerpt}
           </p>
-          <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground pt-2">
-            <div className="flex items-center gap-1">
-              <Calendar className="h-4 w-4" />
+          <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground pt-2 border-t border-border/40">
+            <div className="flex items-center gap-1.5">
+              <Calendar className="h-3.5 w-3.5" />
               <span>{date}</span>
             </div>
-            <div className="flex items-center gap-1">
-              <Clock className="h-4 w-4" />
+            <div className="flex items-center gap-1.5">
+              <Clock className="h-3.5 w-3.5" />
               <span>{readTime}</span>
             </div>
           </div>
-          <div className="flex items-center gap-4 pt-2 text-sm text-muted-foreground">
-            <div className="flex items-center gap-1">
-              <Heart className="h-4 w-4" />
+          <div className="flex items-center gap-4 pt-1 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1 hover:text-red-500 transition-colors">
+              <Heart className="h-3.5 w-3.5" />
               <span>{likesCount}</span>
             </div>
-            <div className="flex items-center gap-1">
-              <MessageCircle className="h-4 w-4" />
+            <div className="flex items-center gap-1 hover:text-blue-500 transition-colors">
+              <MessageCircle className="h-3.5 w-3.5" />
               <span>{commentsCount}</span>
             </div>
-            <div className="flex items-center gap-1">
-              <Share2 className="h-4 w-4" />
+            <div className="flex items-center gap-1 hover:text-green-500 transition-colors">
+              <Share2 className="h-3.5 w-3.5" />
               <span>{sharesCount}</span>
             </div>
           </div>

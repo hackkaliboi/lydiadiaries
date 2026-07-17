@@ -9,7 +9,7 @@ export interface SiteSettings {
 
 export const DEFAULT_SETTINGS: SiteSettings = {
   siteTitle: "Lydia's Diaries",
-  siteDescription: "A modern platform for sharing scientific insights and discoveries. Explore the latest research in physics, astronomy, and medical science.",
+  siteDescription: "A space where learning feels less like a lecture and more like a conversation over a cup of coffee. Explore stories about science, biotechnology, career advice, and lessons from my journey.",
   copyright: `© ${new Date().getFullYear()} Lydia's Diaries. All rights reserved.`,
   twitter: "https://x.com/nnennalydia?s=11&t=rQjxzJkTWMA51t1No54hrg",
   tiktok: "https://www.tiktok.com/@nnennalydia?_t=ZM-90tiAa1A3gJ&_r=1",

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BlogCard from "@/components/BlogCard";
@@ -181,26 +182,28 @@ const Index = () => {
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 sm:w-64 sm:h-64 md:w-96 md:h-96 bg-primary/10 rounded-full blur-3xl animate-pulse delay-500" />
         </div>
 
-        <div className="relative container flex items-center py-12 sm:py-16 md:py-20 lg:py-24 xl:py-32">
-          <div className="max-w-4xl mx-auto w-full">
-            <div className="text-center text-primary-foreground space-y-6 sm:space-y-8 animate-fade-in">
-              <div className="inline-flex items-center px-3 py-1 sm:px-4 sm:py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 mb-4 animate-bounce-in">
+        <div className="relative container py-12 sm:py-16 md:py-20 lg:py-24 xl:py-32 z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            {/* Left Column: Headline and description */}
+            <div className="lg:col-span-7 text-left text-primary-foreground space-y-6 sm:space-y-8 animate-fade-in">
+              <div className="inline-flex items-center px-4 py-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20 mb-2 animate-bounce-in">
                 <span className="mr-2">✨</span>
-                <span className="text-xs sm:text-sm font-medium">Welcome to {settings.siteTitle}</span>
+                <span className="text-xs sm:text-sm font-semibold tracking-wider uppercase">Welcome to {settings.siteTitle}</span>
               </div>
 
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight animate-slide-in-up">
-                Scientific Stories That <span className="bg-gradient-to-r from-accent to-secondary bg-clip-text text-transparent">Inspire</span>
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-[1.1] animate-slide-in-up">
+                Science, simplified. <br />
+                <span className="font-serif italic font-normal bg-gradient-to-r from-accent to-secondary bg-clip-text text-transparent">Stories, shared.</span>
               </h1>
 
-              <p className="text-base sm:text-lg md:text-xl lg:text-2xl opacity-90 max-w-2xl mx-auto leading-relaxed animate-slide-in-up delay-150">
+              <p className="text-base sm:text-lg md:text-xl opacity-90 max-w-xl leading-relaxed animate-slide-in-up delay-150">
                 {settings.siteDescription}
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center pt-8 animate-slide-in-up delay-300">
+              <div className="flex flex-wrap gap-4 pt-4 animate-slide-in-up delay-300">
                 <Button
                   size="lg"
-                  className="text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 hover-scale shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                  className="text-base px-8 py-6 hover-scale shadow-lg hover:shadow-xl bg-primary text-primary-foreground hover:bg-primary/95 transition-all duration-300"
                   asChild
                 >
                   <a href="#newsletter">Start Reading</a>
@@ -208,12 +211,56 @@ const Index = () => {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 bg-white/10 backdrop-blur-sm border-white/30 hover:bg-white/20 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                  className="text-base px-8 py-6 bg-white/5 backdrop-blur-sm border-white/20 hover:bg-white/15 text-white hover:text-white shadow-lg hover:shadow-xl transition-all duration-300"
                   asChild
                 >
-                  <a href="#contributors">Meet Our Writers</a>
+                  <Link to="/about">About Lydia</Link>
                 </Button>
               </div>
+            </div>
+
+            {/* Right Column: Dynamic Content-Driven Glass Card */}
+            <div className="lg:col-span-5 relative w-full flex justify-center lg:justify-end animate-fade-in delay-300">
+              {(featuredPosts[0] || blogPosts[0]) && (() => {
+                const heroPost = featuredPosts[0] || blogPosts[0];
+                return (
+                  <div className="w-full max-w-sm bg-black/40 backdrop-blur-md border border-white/15 rounded-2xl p-5 shadow-2xl space-y-4 hover:border-white/25 transition-all duration-500 hover:scale-[1.02] group">
+                    <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-zinc-800">
+                      <img 
+                        src={heroPost.image || "/placeholder.svg"} 
+                        alt={heroPost.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                      />
+                      <div className="absolute top-3 left-3 bg-primary text-primary-foreground text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-md shadow-md">
+                        {heroPost.category}
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <span className="text-[10px] text-white/55 font-bold uppercase tracking-widest flex items-center gap-1.5">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        Featured Story
+                      </span>
+                      <h3 className="text-white text-lg font-bold leading-snug line-clamp-2 group-hover:text-accent transition-colors">
+                        {heroPost.title}
+                      </h3>
+                      <p className="text-xs text-white/70 line-clamp-2 leading-relaxed">
+                        {heroPost.excerpt}
+                      </p>
+                    </div>
+                    <div className="pt-3 border-t border-white/10 flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2">
+                        <div className="h-6 w-6 rounded-full bg-accent/20 flex items-center justify-center font-bold text-white text-[10px] uppercase">
+                          {heroPost.author.slice(0, 2)}
+                        </div>
+                        <span className="text-white/80 font-medium">{heroPost.author}</span>
+                      </div>
+                      <Button variant="link" className="text-white hover:text-accent p-0 h-auto text-xs" asChild>
+                        <Link to={`/post/${heroPost.id}`}>Read Article →</Link>
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>
@@ -291,26 +338,50 @@ const Index = () => {
         )}
       </section>
 
-      {/* Authors Section */}
-      <section id="contributors" className="container py-12 sm:py-16">
-        <div className="mb-8 text-center sm:text-left">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">Our Contributors</h2>
-          <p className="text-base sm:text-lg text-muted-foreground">
-            Meet the talented writers behind our content
-          </p>
-        </div>
+      {/* About the Author Section */}
+      <section id="about-author" className="container py-16 md:py-24">
+        <div className="bg-gradient-card border border-primary/10 rounded-2xl p-8 md:p-12 shadow-lg relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-primary/5 rounded-full blur-[80px] pointer-events-none" />
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center">
+            {/* Left: Picture */}
+            <div className="md:col-span-4 flex justify-center">
+              <div className="w-48 h-48 sm:w-56 sm:h-56 rounded-2xl overflow-hidden border-2 border-primary/10 shadow-md transform rotate-[-2deg] hover:rotate-[0deg] transition-transform duration-300">
+                <img 
+                  src="/about.png" 
+                  alt="Nnenna Lydia Itodo" 
+                  className="w-full h-full object-cover" 
+                />
+              </div>
+            </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {authors.map((author) => (
-            <AuthorCard
-              key={author.id}
-              id={author.id}
-              name={author.full_name}
-              bio={author.bio}
-              postCount={author.postCount}
-              avatar={author.avatar_url}
-            />
-          ))}
+            {/* Right: Bio details */}
+            <div className="md:col-span-8 space-y-6 text-center md:text-left">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-primary/5 rounded-full border border-primary/10 text-xs font-semibold tracking-wider text-primary uppercase">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                Meet the Author
+              </div>
+              
+              <div className="space-y-2">
+                <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">Nnenna Lydia Itodo</h2>
+                <p className="text-sm font-semibold text-primary/80 uppercase tracking-widest font-mono">
+                  Biotechnology Professional • Educator • Science Communicator
+                </p>
+              </div>
+
+              <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
+                I believe everyone deserves to understand the discoveries shaping our world. From molecular research to daily conversations over coffee, I make science simple, relatable, and enjoyable. Based in Canada, sharing reflections from my journey.
+              </p>
+
+              <div className="pt-4 flex flex-wrap gap-4 justify-center md:justify-start">
+                <Button asChild size="sm" className="px-6">
+                  <Link to="/about">Read My Full Story</Link>
+                </Button>
+                <Button asChild variant="outline" size="sm" className="px-6 bg-transparent">
+                  <Link to="/gallery">View Gallery</Link>
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 

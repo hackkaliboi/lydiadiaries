@@ -28,8 +28,8 @@ export interface BlogPost {
 export const authors: Author[] = [
   {
     id: "nnena-itodo",
-    name: "Nnena Lydia Itodo",
-    bio: "Science communicator and researcher with a passion for making complex scientific concepts accessible to everyone. Specializes in physics and astronomy."
+    name: "Nnenna Lydia Itodo",
+    bio: "Biotechnology professional, educator, and science communicator with a passion for making science simple, relatable, and enjoyable."
   }
 ];
 
@@ -54,7 +54,7 @@ As we continue to explore the quantum realm, we're discovering new applications 
     date: "Mar 15, 2024",
     readTime: "5 min read",
     image: blog1,
-    author: "Nnena Lydia Itodo",
+    author: "Nnenna Lydia Itodo",
     authorId: "nnena-itodo",
     featured: true,
     views: 1243
@@ -81,7 +81,7 @@ Each new discovery brings us closer to answering fundamental questions about our
     date: "Mar 12, 2024",
     readTime: "7 min read",
     image: blog2,
-    author: "Nnena Lydia Itodo",
+    author: "Nnenna Lydia Itodo",
     authorId: "nnena-itodo",
     featured: false,
     views: 892
@@ -110,7 +110,7 @@ These advances represent just the beginning of what's possible as we continue to
     date: "Mar 10, 2024",
     readTime: "6 min read",
     image: blog3,
-    author: "Nnena Lydia Itodo",
+    author: "Nnenna Lydia Itodo",
     authorId: "nnena-itodo",
     featured: true,
     views: 1567

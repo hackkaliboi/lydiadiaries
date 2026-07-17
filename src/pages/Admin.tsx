@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAdmin } from "@/hooks/useAdmin";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, FileText, Users, Eye, Home } from "lucide-react";
+import { Plus, FileText, Users, Eye, Home, Image } from "lucide-react";
 
 interface Stats {
   posts: number;
@@ -166,7 +166,7 @@ const Admin = () => {
             </div>
 
             {/* Quick Actions */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               <Button asChild className="h-20 flex flex-col gap-2">
                 <Link to="/admin/post/new">
                   <Plus className="h-6 w-6" />
@@ -183,6 +183,12 @@ const Admin = () => {
                 <Link to="/admin/users">
                   <Users className="h-6 w-6" />
                   <span className="text-sm">Manage Users</span>
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="h-20 flex flex-col gap-2">
+                <Link to="/admin/gallery">
+                  <Image className="h-6 w-6 text-primary" />
+                  <span className="text-sm">Manage Gallery</span>
                 </Link>
               </Button>
               <Button asChild variant="outline" className="h-20 flex flex-col gap-2">

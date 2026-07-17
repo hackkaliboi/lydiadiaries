@@ -10,7 +10,8 @@ import {
   Menu,
   X,
   Home,
-  Tag
+  Tag,
+  Image
 } from "lucide-react";
 import { useAdmin } from "@/hooks/useAdmin";
 import { supabase } from "@/integrations/supabase/client";
@@ -64,6 +65,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
     { name: "Posts", href: "/admin/posts", icon: FileText },
     { name: "Categories", href: "/admin/categories", icon: Tag },
+    { name: "Gallery", href: "/admin/gallery", icon: Image },
     { name: "Users", href: "/admin/users", icon: Users },
     { name: "Settings", href: "/admin/settings", icon: Settings },
   ];

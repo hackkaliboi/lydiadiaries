@@ -121,16 +121,34 @@ const Archive = () => {
       <Header />
 
       <main className="container py-16">
-        <div className="max-w-4xl mx-auto mb-12">
-          <div className="flex items-center gap-2 mb-4">
-            <Calendar className="h-8 w-8 text-primary" />
-            <h1 className="text-5xl font-bold">Articles</h1>
+        <div className="max-w-4xl mx-auto mb-16 space-y-6 text-center md:text-left">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/5 rounded-full border border-primary/10 animate-fade-in shadow-sm">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+            <span className="text-xs font-semibold tracking-wider text-primary uppercase">
+              // The Complete Archive
+            </span>
           </div>
-          <p className="text-xl text-muted-foreground mb-8">
-            Browse all our articles organized by date and category
+
+          <h1 className="text-4xl sm:text-6xl font-bold tracking-tight pb-1 leading-[1.1]">
+            Scientific <span className="font-serif italic font-normal bg-gradient-to-r from-accent to-secondary bg-clip-text text-transparent">Notebooks</span>
+          </h1>
+
+          <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed max-w-2xl">
+            Browse through all articles, research summaries, and career guides. Use the search bar and category filters below to explore specific subjects.
           </p>
 
-          <div className="space-y-6">
+          <div className="pt-2 flex flex-wrap gap-4 text-xs font-medium text-muted-foreground justify-center md:justify-start">
+            <div className="px-4 py-2 bg-card rounded-xl border border-border shadow-sm flex items-center gap-2">
+              <span className="text-sm font-bold text-foreground">{blogPosts.length}</span>
+              <span>Published Articles</span>
+            </div>
+            <div className="px-4 py-2 bg-card rounded-xl border border-border shadow-sm flex items-center gap-2">
+              <span className="text-sm font-bold text-primary">{categories.length}</span>
+              <span>Explored Fields</span>
+            </div>
+          </div>
+
+          <div className="pt-6 space-y-6">
             <SearchBar onSearch={setSearchQuery} />
             <CategoryFilter
               categories={categories}
