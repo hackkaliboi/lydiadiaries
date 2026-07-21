@@ -12,6 +12,12 @@ import { Label } from "@/components/ui/label";
 import { Image as ImageIcon, Upload, Trash2, Edit3, Save, X, Calendar, RefreshCw } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
+interface GalleryItemImage {
+  id: string;
+  filename: string;
+  url: string;
+}
+
 interface GalleryItem {
   id: string;
   filename: string;
@@ -19,6 +25,8 @@ interface GalleryItem {
   title: string;
   description: string;
   createdAt: string;
+  type?: "single" | "event";
+  images?: GalleryItemImage[];
 }
 
 const AdminGallery = () => {
@@ -33,7 +41,9 @@ const AdminGallery = () => {
   const [uploading, setUploading] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
+  const [coverFileIndex, setCoverFileIndex] = useState<number>(0);
 
   // Edit States
   const [editingItem, setEditingItem] = useState<GalleryItem | null>(null);
@@ -43,6 +53,13 @@ const AdminGallery = () => {
   // Delete State
   const [itemToDelete, setItemToDelete] = useState<GalleryItem | null>(null);
   const [deleting, setDeleting] = useState(false);
+
+  // Cleanup object URLs to avoid memory leaks
+  useEffect(() => {
+    return () => {
+      previews.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, []);
 
   useEffect(() => {
     if (!adminLoading && !isAdmin) {
@@ -129,54 +146,95 @@ const AdminGallery = () => {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-      // Auto-populate title if empty
-      if (!newTitle) {
-        const nameWithoutExt = file.name.split(".").slice(0, -1).join(".");
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    if (files.length > 0) {
+      // Clear old previews
+      previews.forEach((url) => URL.revokeObjectURL(url));
+      
+      setSelectedFiles(files);
+      const newPreviews = files.map((file) => URL.createObjectURL(file));
+      setPreviews(newPreviews);
+      setCoverFileIndex(0);
+
+      // Auto-populate title if empty and we have a file
+      if (!newTitle && files.length > 0) {
+        const nameWithoutExt = files[0].name.split(".").slice(0, -1).join(".");
         setNewTitle(nameWithoutExt.replace(/[-_]/g, " "));
       }
     }
   };
 
+  const handleRemoveFile = (index: number) => {
+    URL.revokeObjectURL(previews[index]);
+    const updatedFiles = selectedFiles.filter((_, i) => i !== index);
+    const updatedPreviews = previews.filter((_, i) => i !== index);
+    setSelectedFiles(updatedFiles);
+    setPreviews(updatedPreviews);
+    
+    if (coverFileIndex === index) {
+      setCoverFileIndex(0);
+    } else if (coverFileIndex > index) {
+      setCoverFileIndex(coverFileIndex - 1);
+    }
+  };
+
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedFile) {
+    if (selectedFiles.length === 0) {
       toast({
         variant: "destructive",
-        title: "No File Selected",
-        description: "Please select an image to upload.",
+        title: "No Files Selected",
+        description: "Please select at least one image to upload.",
       });
       return;
     }
 
     setUploading(true);
     try {
-      const fileExt = selectedFile.name.split(".").pop();
-      const fileName = `${Date.now()}_gallery.${fileExt}`;
-      const filePath = `gallery/${fileName}`;
+      const uploadedImages: GalleryItemImage[] = [];
 
-      // 1. Upload file to Supabase storage
-      const { error: uploadError } = await supabase.storage
-        .from("blog-images")
-        .upload(filePath, selectedFile);
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+        const fileExt = file.name.split(".").pop();
+        const fileName = `${Date.now()}_${i}_gallery.${fileExt}`;
+        const filePath = `gallery/${fileName}`;
 
-      if (uploadError) throw uploadError;
+        // 1. Upload file to Supabase storage
+        const { error: uploadError } = await supabase.storage
+          .from("blog-images")
+          .upload(filePath, file);
 
-      // 2. Get Public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from("blog-images")
-        .getPublicUrl(filePath);
+        if (uploadError) throw uploadError;
+
+        // 2. Get Public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from("blog-images")
+          .getPublicUrl(filePath);
+
+        uploadedImages.push({
+          id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + i),
+          filename: fileName,
+          url: publicUrl,
+        });
+      }
+
+      // Reorder so the chosen cover image is at index 0
+      const coverImage = uploadedImages[coverFileIndex] || uploadedImages[0];
+      const orderedImages = [
+        coverImage,
+        ...uploadedImages.filter((_, idx) => idx !== coverFileIndex)
+      ];
 
       // 3. Update state & save metadata
       const newItem: GalleryItem = {
         id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-        filename: fileName,
-        url: publicUrl,
-        title: newTitle || fileName.split(".")[0],
+        filename: coverImage.filename,
+        url: coverImage.url,
+        title: newTitle || coverImage.filename.split(".")[0],
         description: newDescription,
         createdAt: new Date().toISOString(),
+        type: selectedFiles.length > 1 ? "event" : "single",
+        images: orderedImages,
       };
 
       const updatedItems = [newItem, ...items];
@@ -185,7 +243,10 @@ const AdminGallery = () => {
       setItems(updatedItems);
       setNewTitle("");
       setNewDescription("");
-      setSelectedFile(null);
+      setSelectedFiles([]);
+      previews.forEach((url) => URL.revokeObjectURL(url));
+      setPreviews([]);
+      setCoverFileIndex(0);
       
       // Reset input element
       const fileInput = document.getElementById("gallery-file") as HTMLInputElement;
@@ -193,14 +254,16 @@ const AdminGallery = () => {
 
       toast({
         title: "Success",
-        description: "Gallery image uploaded successfully.",
+        description: selectedFiles.length > 1 
+          ? `Event album uploaded with ${selectedFiles.length} photos.`
+          : "Gallery image uploaded successfully.",
       });
     } catch (error) {
-      console.error("Error uploading image:", error);
+      console.error("Error uploading image(s):", error);
       toast({
         variant: "destructive",
         title: "Upload Failed",
-        description: "An error occurred while uploading the image.",
+        description: "An error occurred while uploading the image(s).",
       });
     } finally {
       setUploading(false);
@@ -251,11 +314,14 @@ const AdminGallery = () => {
 
     setDeleting(true);
     try {
-      // 1. Remove file from storage
-      const filePath = `gallery/${itemToDelete.filename}`;
+      // 1. Remove files from storage
+      const filePathsToDelete = itemToDelete.images && itemToDelete.images.length > 0
+        ? itemToDelete.images.map((img) => `gallery/${img.filename}`)
+        : [`gallery/${itemToDelete.filename}`];
+
       const { error: removeError } = await supabase.storage
         .from("blog-images")
-        .remove([filePath]);
+        .remove(filePathsToDelete);
 
       if (removeError) throw removeError;
 
@@ -266,14 +332,14 @@ const AdminGallery = () => {
 
       toast({
         title: "Deleted",
-        description: "Image deleted successfully from gallery.",
+        description: "Gallery item deleted successfully.",
       });
     } catch (error) {
-      console.error("Error deleting gallery image:", error);
+      console.error("Error deleting gallery image(s):", error);
       toast({
         variant: "destructive",
         title: "Delete Failed",
-        description: "Could not remove the image from storage/gallery.",
+        description: "Could not remove the image(s) from storage/gallery.",
       });
     } finally {
       setDeleting(false);
@@ -321,50 +387,89 @@ const AdminGallery = () => {
               <CardContent>
                 <form onSubmit={handleUpload} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="gallery-file">Select Image</Label>
+                    <Label htmlFor="gallery-file">Select Images</Label>
                     <Input
                       id="gallery-file"
                       type="file"
                       accept="image/*"
                       onChange={handleFileChange}
+                      multiple
                       required
                       disabled={uploading}
                       className="cursor-pointer"
                     />
-                    {selectedFile && (
-                      <p className="text-xs text-muted-foreground truncate">
-                        Selected: {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
-                      </p>
+                    {selectedFiles.length > 0 && (
+                      <div className="space-y-2">
+                        <p className="text-xs font-semibold text-muted-foreground">
+                          Selected ({selectedFiles.length}): Choose a cover photo
+                        </p>
+                        <div className="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto p-1 bg-muted/50 rounded-lg border border-border/40">
+                          {previews.map((preview, index) => (
+                            <div
+                              key={preview}
+                              onClick={() => setCoverFileIndex(index)}
+                              className={`relative aspect-square rounded-md overflow-hidden cursor-pointer border-2 transition-all ${
+                                coverFileIndex === index
+                                  ? "border-primary shadow-sm scale-95"
+                                  : "border-transparent opacity-70 hover:opacity-100"
+                              }`}
+                            >
+                              <img
+                                src={preview}
+                                alt={`Selected preview ${index}`}
+                                className="w-full h-full object-cover"
+                              />
+                              {coverFileIndex === index && (
+                                <div className="absolute top-1 left-1 bg-primary text-primary-foreground text-[8px] font-bold px-1.5 py-0.5 rounded shadow">
+                                  Cover
+                                </div>
+                              )}
+                              <Button
+                                type="button"
+                                size="icon"
+                                variant="destructive"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleRemoveFile(index);
+                                }}
+                                className="absolute top-1 right-1 h-4 w-4 rounded-full p-0 shadow-sm"
+                              >
+                                <X className="h-2.5 w-2.5" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     )}
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="title">Photo Title</Label>
+                    <Label htmlFor="title">Photo Title / Event Title</Label>
                     <Input
                       id="title"
                       value={newTitle}
                       onChange={(e) => setNewTitle(e.target.value)}
-                      placeholder="e.g. Exploring plant cells in the lab"
+                      placeholder="e.g. Biotech Symposium 2026"
                       required
                       disabled={uploading}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="description">Caption / Description</Label>
+                    <Label htmlFor="description">Caption / Description (Large captions allowed)</Label>
                     <Textarea
                       id="description"
                       value={newDescription}
                       onChange={(e) => setNewDescription(e.target.value)}
-                      placeholder="Add background story or science explanation..."
-                      rows={3}
+                      placeholder="Add background story, science explanation, or event diary details..."
+                      rows={4}
                       disabled={uploading}
-                      className="resize-none"
+                      className="resize-y"
                     />
                   </div>
 
                   <Button type="submit" className="w-full" disabled={uploading}>
-                    {uploading ? "Uploading Image..." : "Upload to Gallery"}
+                    {uploading ? `Uploading ${selectedFiles.length} file(s)...` : "Upload to Gallery"}
                   </Button>
                 </form>
               </CardContent>
@@ -403,6 +508,11 @@ const AdminGallery = () => {
                             alt={item.title}
                             className="object-cover w-full h-full"
                           />
+                          {item.images && item.images.length > 1 && (
+                            <div className="absolute top-2 left-2 bg-pink-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+                              Event • {item.images.length} Photos
+                            </div>
+                          )}
                         </div>
                         <CardContent className="p-4 space-y-2">
                           <h4 className="font-bold text-sm line-clamp-1">{item.title}</h4>
@@ -493,7 +603,9 @@ const AdminGallery = () => {
           <DialogHeader>
             <DialogTitle>Are you absolutely sure?</DialogTitle>
             <DialogDescription>
-              This will permanently delete the photo from the gallery and remove it from Supabase storage.
+              {itemToDelete?.images && itemToDelete.images.length > 1
+                ? `This will permanently delete the event "${itemToDelete.title}" and all its ${itemToDelete.images.length} photos from Supabase storage.`
+                : "This will permanently delete the photo from the gallery and remove it from Supabase storage."}
             </DialogDescription>
           </DialogHeader>
           {itemToDelete && (

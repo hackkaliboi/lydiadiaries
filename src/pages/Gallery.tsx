@@ -7,6 +7,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Image as ImageIcon, ChevronLeft, ChevronRight, X, Calendar, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+interface GalleryItemImage {
+  id: string;
+  filename: string;
+  url: string;
+}
+
 interface GalleryItem {
   id: string;
   filename: string;
@@ -14,12 +20,15 @@ interface GalleryItem {
   title: string;
   description: string;
   createdAt: string;
+  type?: "single" | "event";
+  images?: GalleryItemImage[];
 }
 
 const Gallery = () => {
   const [items, setItems] = useState<GalleryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeImageIndex, setActiveImageIndex] = useState<number | null>(null);
+  const [activeEventImageIndex, setActiveEventImageIndex] = useState<number>(0);
 
   useEffect(() => {
     fetchGalleryItems();
@@ -79,23 +88,46 @@ const Gallery = () => {
   const handlePrev = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (activeImageIndex === null) return;
-    setActiveImageIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : items.length - 1));
+    const activeItem = items[activeImageIndex];
+    if (activeItem.images && activeItem.images.length > 1) {
+      setActiveEventImageIndex((prev) => (prev > 0 ? prev - 1 : activeItem.images!.length - 1));
+    } else {
+      setActiveImageIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : items.length - 1));
+      setActiveEventImageIndex(0);
+    }
   };
 
   const handleNext = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (activeImageIndex === null) return;
-    setActiveImageIndex((prev) => (prev !== null && prev < items.length - 1 ? prev + 1 : 0));
+    const activeItem = items[activeImageIndex];
+    if (activeItem.images && activeItem.images.length > 1) {
+      setActiveEventImageIndex((prev) => (prev < activeItem.images!.length - 1 ? prev + 1 : 0));
+    } else {
+      setActiveImageIndex((prev) => (prev !== null && prev < items.length - 1 ? prev + 1 : 0));
+      setActiveEventImageIndex(0);
+    }
   };
 
   // Keyboard navigation for Lightbox
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (activeImageIndex === null) return;
+      const activeItem = items[activeImageIndex];
       if (e.key === "ArrowLeft") {
-        setActiveImageIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : items.length - 1));
+        if (activeItem.images && activeItem.images.length > 1) {
+          setActiveEventImageIndex((prev) => (prev > 0 ? prev - 1 : activeItem.images!.length - 1));
+        } else {
+          setActiveImageIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : items.length - 1));
+          setActiveEventImageIndex(0);
+        }
       } else if (e.key === "ArrowRight") {
-        setActiveImageIndex((prev) => (prev !== null && prev < items.length - 1 ? prev + 1 : 0));
+        if (activeItem.images && activeItem.images.length > 1) {
+          setActiveEventImageIndex((prev) => (prev < activeItem.images!.length - 1 ? prev + 1 : 0));
+        } else {
+          setActiveImageIndex((prev) => (prev !== null && prev < items.length - 1 ? prev + 1 : 0));
+          setActiveEventImageIndex(0);
+        }
       } else if (e.key === "Escape") {
         setActiveImageIndex(null);
       }
@@ -103,7 +135,7 @@ const Gallery = () => {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [activeImageIndex, items]);
+  }, [activeImageIndex, activeEventImageIndex, items]);
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
@@ -231,37 +263,58 @@ const Gallery = () => {
             {items.map((item, index) => (
               <div
                 key={item.id}
-                onClick={() => setActiveImageIndex(index)}
-                className="group cursor-pointer bg-gradient-card border border-primary/10 rounded-xl overflow-hidden shadow-md hover:shadow-xl hover:border-primary/30 transition-all duration-300 transform hover:-translate-y-1"
+                onClick={() => {
+                  setActiveImageIndex(index);
+                  setActiveEventImageIndex(0);
+                }}
+                className="group cursor-pointer relative transition-all duration-300 transform hover:-translate-y-2"
               >
-                <div className="aspect-[4/3] w-full overflow-hidden bg-background relative">
-                  <img
-                    src={item.url}
-                    alt={item.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-                    <p className="text-xs font-semibold text-primary mb-1 flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      {new Date(item.createdAt).toLocaleDateString(undefined, {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                      })}
-                    </p>
-                    <h3 className="text-white text-lg font-bold tracking-tight line-clamp-1">{item.title}</h3>
+                {/* Background stacks for event albums to look like a premium stack of photos */}
+                {item.images && item.images.length > 1 && (
+                  <>
+                    <div className="absolute inset-0 bg-card/40 border border-primary/5 rounded-xl shadow-sm transform -rotate-3 translate-y-1.5 transition-transform duration-500 group-hover:-rotate-6 group-hover:translate-y-3 group-hover:-translate-x-2" />
+                    <div className="absolute inset-0 bg-card/75 border border-primary/10 rounded-xl shadow-md transform rotate-2 translate-y-0.5 transition-transform duration-500 group-hover:rotate-4 group-hover:translate-y-1.5 group-hover:translate-x-2" />
+                  </>
+                )}
+
+                <div className="relative bg-gradient-card border border-primary/10 rounded-xl overflow-hidden shadow-md hover:shadow-xl hover:border-primary/30 transition-all duration-300 flex flex-col h-full bg-background z-10">
+                  <div className="aspect-[4/3] w-full overflow-hidden bg-background relative">
+                    <img
+                      src={item.url}
+                      alt={item.title}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+                      <p className="text-xs font-semibold text-primary mb-1 flex items-center gap-1">
+                        <Calendar className="h-3 w-3" />
+                        {new Date(item.createdAt).toLocaleDateString(undefined, {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                      </p>
+                      <h3 className="text-white text-lg font-bold tracking-tight line-clamp-1">{item.title}</h3>
+                    </div>
+
+                    {/* Event photo count badge */}
+                    {item.images && item.images.length > 1 && (
+                      <div className="absolute top-3 left-3 bg-pink-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1 z-20">
+                        <ImageIcon className="h-3.5 w-3.5" />
+                        <span>Event • {item.images.length} Photos</span>
+                      </div>
+                    )}
                   </div>
-                </div>
-                <div className="p-5 space-y-2 group-hover:bg-accent/50 transition-colors duration-300">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-foreground text-md tracking-tight line-clamp-1 group-hover:text-primary transition-colors duration-300">
-                      {item.title}
-                    </h3>
+                  <div className="p-5 space-y-2 group-hover:bg-accent/50 transition-colors duration-300 flex-1 flex flex-col justify-between">
+                    <div>
+                      <h3 className="font-bold text-foreground text-md tracking-tight line-clamp-1 group-hover:text-primary transition-colors duration-300 mb-1">
+                        {item.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
+                        {item.description}
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-                    {item.description}
-                  </p>
                 </div>
               </div>
             ))}
@@ -275,12 +328,25 @@ const Gallery = () => {
           {activeImageIndex !== null && items[activeImageIndex] && (
             <>
               {/* Left Side: Interactive Image Viewer */}
-              <div className="relative flex-1 bg-black flex items-center justify-center p-4 h-3/5 md:h-full">
-                <img
-                  src={items[activeImageIndex].url}
-                  alt={items[activeImageIndex].title}
-                  className="max-w-full max-h-full object-contain select-none animate-fade-in"
-                />
+              <div className="relative flex-1 bg-black flex flex-col items-center justify-center p-4 h-3/5 md:h-full select-none">
+                {/* Photo counter overlay for events */}
+                {items[activeImageIndex].images && items[activeImageIndex].images!.length > 1 && (
+                  <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md text-white text-[10px] font-semibold px-2 py-1 rounded shadow z-10">
+                    Photo {activeEventImageIndex + 1} of {items[activeImageIndex].images!.length}
+                  </div>
+                )}
+
+                <div className="relative w-full flex-1 flex items-center justify-center overflow-hidden">
+                  <img
+                    src={
+                      items[activeImageIndex].images && items[activeImageIndex].images!.length > 0
+                        ? items[activeImageIndex].images![activeEventImageIndex]?.url
+                        : items[activeImageIndex].url
+                    }
+                    alt={items[activeImageIndex].title}
+                    className="max-w-full max-h-[90%] object-contain select-none animate-fade-in"
+                  />
+                </div>
 
                 {/* Left navigation arrow */}
                 <Button
@@ -301,6 +367,25 @@ const Gallery = () => {
                 >
                   <ChevronRight className="h-6 w-6" />
                 </Button>
+
+                {/* Thumbnail strip for events at the bottom */}
+                {items[activeImageIndex].images && items[activeImageIndex].images!.length > 1 && (
+                  <div className="absolute bottom-4 left-4 right-4 flex justify-center gap-2 overflow-x-auto py-2 px-4 bg-black/60 backdrop-blur-md rounded-xl max-w-[90%] mx-auto scrollbar-thin">
+                    {items[activeImageIndex].images!.map((img, idx) => (
+                      <button
+                        key={img.id}
+                        onClick={() => setActiveEventImageIndex(idx)}
+                        className={`relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 border-2 transition-all ${
+                          activeEventImageIndex === idx
+                            ? "border-primary scale-110 shadow-lg"
+                            : "border-transparent opacity-60 hover:opacity-100"
+                        }`}
+                      >
+                        <img src={img.url} alt="" className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Right Side: Photo Details Panel */}
@@ -309,7 +394,11 @@ const Gallery = () => {
                   <div className="flex items-center justify-between">
                     <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
                       <ImageIcon className="h-3 w-3" />
-                      <span>Gallery Story</span>
+                      <span>
+                        {items[activeImageIndex].images && items[activeImageIndex].images!.length > 1
+                          ? "Event Album"
+                          : "Gallery Story"}
+                      </span>
                     </div>
                     <Button
                       variant="ghost"
@@ -342,14 +431,18 @@ const Gallery = () => {
                       <Info className="h-3 w-3" />
                       About this Moment
                     </h4>
-                    <p className="text-sm leading-relaxed text-muted-foreground">
+                    <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
                       {items[activeImageIndex].description || "No description provided for this moment."}
                     </p>
                   </div>
                 </div>
 
                 <div className="text-center text-xs text-muted-foreground border-t border-border/30 pt-4 mt-4">
-                  Image {activeImageIndex + 1} of {items.length}
+                  {items[activeImageIndex].images && items[activeImageIndex].images!.length > 1 ? (
+                    <span>Album {activeImageIndex + 1} of {items.length} ({items[activeImageIndex].images!.length} photos)</span>
+                  ) : (
+                    <span>Image {activeImageIndex + 1} of {items.length}</span>
+                  )}
                 </div>
               </div>
             </>
