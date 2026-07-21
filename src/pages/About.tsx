@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card } from "@/components/ui/card";
-import { Coffee, Beaker, GraduationCap, Compass, MapPin, Sparkles, BookOpen } from "lucide-react";
+import { Beaker, GraduationCap, Compass, MapPin, Sparkles, BookOpen } from "lucide-react";
 
 const About = () => {
   return (
@@ -67,11 +67,7 @@ const About = () => {
                   <div className="pt-4 border-t border-border space-y-3">
                     <div className="flex items-center gap-3 text-sm text-muted-foreground">
                       <MapPin className="h-4 w-4 text-primary/70 flex-shrink-0" />
-                      <span>Based in Canada 🇨🇦</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                      <Coffee className="h-4 w-4 text-primary/70 flex-shrink-0" />
-                      <span>Coffee & conversations enthusiast</span>
+                      <span>🇨🇦</span>
                     </div>
                   </div>
                 </div>
@@ -132,12 +128,7 @@ const About = () => {
                 </div>
               </Card>
 
-              {/* Cozy Coffee Quote */}
-              <div className="space-y-6 text-base md:text-lg text-muted-foreground leading-relaxed">
-                <p>
-                  This is a space where learning feels less like a lecture and more like a conversation over a cup of coffee. A place where curiosity is always welcome and no question is too small.
-                </p>
-              </div>
+
 
               {/* What to expect grid */}
               <div className="space-y-4">
